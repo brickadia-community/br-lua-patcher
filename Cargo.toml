@@ -1,0 +1,6 @@
+[workspace]
+members = ["crates/cli", "crates/patch_exe"]
+resolver = "3"
+
+[workspace.dependencies]
+patch_exe = { path = "crates/patch_exe" }
