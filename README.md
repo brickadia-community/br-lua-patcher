@@ -13,6 +13,11 @@ This tool patches Brickadia to add support for UE4SS, allowing you to run lua/bl
 
 ## Usage
 
+1. [Download the latest release](https://github.com/brickadia-community/br-lua-patcher/releases)
+2. Re-read 👀 the [NOTICE](#notice)
+3. Run `br_patcher.exe`
+4. Enjoy!
+
 <!--
 TODO: Finish setting up CI based on https://github.com/UE4SS-RE/RE-UE4SS/blob/main/.github/workflows/release.yml
 TODO: CI builds ue4ss, rust, and builds the cli to a release binary.
@@ -35,6 +40,8 @@ This is required to access [Re-UE4SS/UEPseudo](https://github.com/Re-UE4SS/UEPse
 After you've linked your account, [generate an ssh-key](https://www.ssh.com/academy/ssh/keygen) (I recommend `-t ed25519`) and [add it to your github account](https://github.com/settings/keys). This is required to git-clone-submodules from the private repositories.
 
 ### 2. Compile UE4SS
+
+Skip this step by downloading the `dwmapi.dll` and `UE4SS.dll` from the [latest release](https://github.com/brickadia-community/br-lua-patcher/releases) and copying them to the `assets` directory.
 
 1. Download [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) and install a version of MSVC that supports C++23 (Desktop C++)
 2. Install [Rust](https://www.rust-lang.org/tools/install)

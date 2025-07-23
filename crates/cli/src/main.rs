@@ -1,6 +1,6 @@
-use std::{path::PathBuf, time::Instant};
+use std::{io::Read, path::PathBuf, time::Instant};
 
-use inquire::{Confirm, Password};
+use inquire::{Confirm, Text};
 use log::{debug, error, info};
 use patch_exe::{check_section_headers, patch_section_headers};
 
@@ -95,13 +95,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let elapsed_ms = startup.elapsed().as_millis() as usize;
     let count_map = [("not", 8), ("or", 5), ("future", 2), ("a", 1), ("that", 3)];
     let (word, times) = count_map[elapsed_ms % count_map.len()];
-    match Password::new(&format!(
-        "You did, huh? How many times does the NOTICE say '{word}'?"
+    match Text::new(&format!(
+        "You did, huh? How many times does the NOTICE have the word '{word}'?"
     ))
+    .with_help_message("https://github.com/brickadia-community/br-lua-patcher")
     .prompt()
     {
         Ok(v) if v.parse().unwrap_or(0) == times => {}
-        _ => return Err("You did not read the notice.".into()),
+        _ => return Err("Come back soon!".into()),
     };
 
     let steam_dir = steamlocate::SteamDir::locate()?;
@@ -195,6 +196,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         copy_files_to_dir(&server_parent_dir);
         info!("Files copied to server directory!");
     }
+    info!("All Done! Press any key to close");
+    let mut stdin = std::io::stdin();
+    let _ = stdin.read(&mut [0u8]).unwrap();
 
     Ok(())
 }

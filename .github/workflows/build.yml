@@ -72,6 +72,7 @@ jobs:
       - name: Build Rust Patcher
         run: |
           cargo build --release --target x86_64-pc-windows-msvc
+          cp target/x86_64-pc-windows-msvc/release/cli.exe br_patcher.exe
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
@@ -80,6 +81,6 @@ jobs:
           tag_name: latest
           # body_path: release/release_notes.md
           files: |
-            target/x86_64-pc-windows-msvc/release/cli.exe
+            br_patcher.exe
             assets/dwmapi.dll
             assets/UE4SS.dll
