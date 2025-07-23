@@ -45,11 +45,12 @@ After you've linked your account, [generate an ssh-key](https://www.ssh.com/acad
 <!-- This is supposed to work too -->
 <!-- `xmake f -m "Game__Shipping__Win64" -y` -->
 <!-- `xmake build` -->
-8. `xmake project -k vsxmake2022 -m "Game__Shipping__Win64`
-9. Open `vsxmake2022/RE-UE4SS.sln` in Visual Studio
-10. In the "Build" menu, select "Build UE4SS" to compile the UE4SS binaries (This may take a while)
-11. Copy `RE-UE4SS/Binaries/Game__Shipping__Win64/proxy/dwmapi.dll` to `assets/dwmapi.dll`
-12. Copy `RE-UE4SS/Binaries/Game__Shipping__Win64/UE4SS/UE4SS.dll` to `assets/UE4SS.dll`
+8. (Optional?) Copy [`raw_pbd_xmake.lua`](./raw_pdb_xmake.lua) to `RE-UE4SS/deps/third-repo/packages/r/raw_pdb/xmake.lua`
+9. `xmake project -k vsxmake2022 -m "Game__Shipping__Win64`
+10. Open `vsxmake2022/RE-UE4SS.sln` in Visual Studio
+11. In the "Build" menu, select "Build UE4SS" to compile the UE4SS binaries (This may take a while)
+12. Copy `RE-UE4SS/Binaries/Game__Shipping__Win64/proxy/dwmapi.dll` to `assets/dwmapi.dll`
+13. Copy `RE-UE4SS/Binaries/Game__Shipping__Win64/UE4SS/UE4SS.dll` to `assets/UE4SS.dll`
 
 ### 3. Compile and Run
 

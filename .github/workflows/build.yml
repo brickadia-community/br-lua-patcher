@@ -1,0 +1,85 @@
+name: Make and deploy
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "latest"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: latest
+  cancel-in-progress: true
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout Patcher
+        uses: actions/checkout@v4
+
+      - name: Checkout UE4SS
+        uses: actions/checkout@v4
+        with:
+          repository: UE4SS-RE/RE-UE4SS
+          submodules: recursive
+          fetch-depth: 0 # needed to get commits since last tag
+          ssh-key: ${{ secrets.GH_REPO_SSH }}
+          path: RE-UE4SS
+
+      # - name: Setup Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.9"
+
+      # Specifically use MSVC toolset v19.39.33523
+      - name: Install VS2022 BuildTools 17.9.7
+        run: choco install -y visualstudio2022buildtools --version=117.9.7.0 --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --installChannelUri https://aka.ms/vs/17/release/180911598_-255012421/channel"
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: "2.9.3"
+
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .xmake
+            Binaries
+            Intermediates
+            C:/Users/runneradmin/AppData/Local/.xmake
+          key: ${{ runner.os }}-xmake-${{ hashFiles('**/xmake.lua') }}
+
+      - name: Build
+        # cp raw_pdb_xmake.lua RE-UE4SS/deps/third-repo/packages/r/raw_pdb/xmake.lua
+        run: |
+          cd RE-UE4SS
+          xmake f -m "Game__Shipping__Win64" -y
+          xmake build
+
+      - name: Copy UE4SS Assets
+        run: |
+          cp RE-UE4SS/Binaries/Game__Shipping__Win64/proxy/dwmapi.dll assets/dwmapi.dll
+          cp RE-UE4SS/Binaries/Game__Shipping__Win64/UE4SS/UE4SS.dll assets/UE4SS.dll
+
+      - name: Rust Setup
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Patcher
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: latest
+          # body_path: release/release_notes.md
+          files: |
+            target/x86_64-pc-windows-msvc/release/cli.exe
+            assets/dwmapi.dll
+            assets/UE4SS.dll
