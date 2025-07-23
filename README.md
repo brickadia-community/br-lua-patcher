@@ -9,7 +9,7 @@ This tool patches Brickadia to add support for UE4SS, allowing you to run lua/bl
 3. You will not create or help people make cheats, trolling tools, or nuisance mods.
 4. You will not post content that do not work for the vanilla game to the gallery or host servers that do not work with vanilla clients to server list.
 5. You will not complain if this tool stops working in a future game version.
-6. You will not submit crash reports that are caused by this tool or mods.
+6. You will not submit crash reports which are caused by this tool or mods.
 
 ## Usage
 
@@ -17,13 +17,6 @@ This tool patches Brickadia to add support for UE4SS, allowing you to run lua/bl
 2. Re-read 👀 the [NOTICE](#notice)
 3. Run `br_patcher.exe`
 4. Enjoy!
-
-<!--
-TODO: Finish setting up CI based on https://github.com/UE4SS-RE/RE-UE4SS/blob/main/.github/workflows/release.yml
-TODO: CI builds ue4ss, rust, and builds the cli to a release binary.
-TODO: only run on tags
--->
-<!-- Download and run the binary from releases to patch your brickadia game/server steam binaries. -->
 
 Setup is manual at the moment...
 
