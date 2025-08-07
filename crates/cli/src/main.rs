@@ -1,6 +1,6 @@
-use std::{io::Read, path::PathBuf, time::Instant};
+use std::{io::Read, path::PathBuf};
 
-use inquire::{Confirm, Text};
+use inquire::Confirm;
 use log::{debug, error, info};
 use patch_exe::{check_section_headers, patch_section_headers};
 
@@ -65,18 +65,18 @@ fn copy_files_to_dir(dir: &PathBuf) {
     for (content, name) in files_to_create {
         let file_path = dir.join(name);
         if file_path.exists() {
-            info!("File already exists, skipping: {name}");
-            continue;
+            std::fs::remove_file(&file_path)
+                .expect(format!("Failed to remove existing file: {name}").as_str());
         }
-        let mut file = File::create(file_path).expect("Failed to create file");
-        file.write_all(content).expect("Failed to write to file");
-        info!("Created file: {}", name);
+        let mut file =
+            File::create(file_path).expect(format!("Failed to create file: {name}").as_str());
+        file.write_all(content)
+            .expect(format!("Failed to write to file: {name}").as_str());
+        info!("Wrote file: {name}");
     }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let startup = Instant::now();
-
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
         .format_timestamp(None)
@@ -91,19 +91,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         return Err("You must agree to the conditions to continue.".into());
     }
-
-    let elapsed_ms = startup.elapsed().as_millis() as usize;
-    let count_map = [("not", 8), ("or", 5), ("future", 2), ("a", 1), ("that", 3)];
-    let (word, times) = count_map[elapsed_ms % count_map.len()];
-    match Text::new(&format!(
-        "You did, huh? How many times does the NOTICE have the word '{word}'?"
-    ))
-    .with_help_message("https://github.com/brickadia-community/br-lua-patcher")
-    .prompt()
-    {
-        Ok(v) if v.parse().unwrap_or(0) == times => {}
-        _ => return Err("Come back soon!".into()),
-    };
 
     let steam_dir = steamlocate::SteamDir::locate()?;
     debug!("Steam directory: {}", steam_dir.path().display());
@@ -134,11 +121,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             break 'game;
         }
 
-        if check_section_headers(&game_bin)? {
-            info!("Game binary is already patched: {}", game_bin.display());
-            break 'game;
-        }
-
         if !Confirm::new("Patch and setup UE4SS for the game binary?")
             .with_default(true)
             .with_help_message(&format!("Game binary: {}", game_bin.display()))
@@ -148,8 +130,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             break 'game;
         }
 
-        info!("Patching game binary: {}", game_bin.display());
-        patch_section_headers(&game_bin)?;
+        if check_section_headers(&game_bin)? {
+            info!("Game binary is already patched: {}", game_bin.display());
+        } else {
+            info!("Patching game binary: {}", game_bin.display());
+            patch_section_headers(&game_bin)?;
+        }
         info!("Game binary patched! Copying files to game directory...");
         copy_files_to_dir(&game_parent_dir);
         info!("Files copied to game directory!");
@@ -177,11 +163,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             break 'server;
         }
 
-        if check_section_headers(&server_bin)? {
-            info!("Server binary is already patched: {}", server_bin.display());
-            break 'server;
-        }
-
         if !Confirm::new("Patch and setup UE4SS for the server binary?")
             .with_default(true)
             .with_help_message(&format!("Server binary: {}", server_bin.display()))
@@ -190,8 +171,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             info!("Skipping patching of server binary.");
             break 'server;
         }
-        info!("Patching server binary: {}", server_bin.display());
-        patch_section_headers(&server_bin)?;
+
+        if check_section_headers(&server_bin)? {
+            info!("Server binary is already patched: {}", server_bin.display());
+        } else {
+            info!("Patching server binary: {}", server_bin.display());
+            patch_section_headers(&server_bin)?;
+        }
         info!("Server binary patched! Copying files to server directory...");
         copy_files_to_dir(&server_parent_dir);
         info!("Files copied to server directory!");
